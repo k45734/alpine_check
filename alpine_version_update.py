@@ -127,6 +127,6 @@ def main():
         with open(VERSION_FILE, "w") as f: f.write(current_info)
     else:
         print(f"✅ 변동 없음 (v{web_v})")
-        trigger_github_actions()
+        
 if __name__ == "__main__":
     main()
