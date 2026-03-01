@@ -1,0 +1,49 @@
+name: Alpine Version Check and Trigger
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 한국 시간 오전 9시 (UTC 00:00)에 실행
+  workflow_dispatch:      # 필요할 때 수동으로 버튼 눌러 실행 가능
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    
+    # 저장소에 쓰기 권한을 부여합니다 (last_alpine_info.txt 업데이트용)
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run Update Check Script
+        env:
+          # GitHub Secrets에 등록한 토큰을 환경변수로 전달
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: python alpine_version_update.py
+
+      - name: Commit and Push if version changed
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 파일 변경 사항이 있는지 확인
+          git add last_alpine_info.txt
+          
+          # 변경사항이 있을 때만 커밋하고 푸시 (없으면 무시)
+          if ! git diff --cached --exit-code; then
+            git commit -m "chore: update last alpine version info [skip ci]"
+            git push
+          else
+            echo "No changes detected in version info."
+          fi
