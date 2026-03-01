@@ -6,9 +6,8 @@ from datetime import datetime, timezone, timedelta
 
 # --- [설정 섹션] ---
 # 1. 텔레그램 설정
-TELEGRAM_TOKEN = "520599385:AAEcHtxF8Jq5Gj2ygAbidG3hdx7LRvOeB2c"
-CHAT_ID = "544321507"
-
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
 # 2. GitHub 트리거 설정 (Secrets에 GH_PAT 등록 필수)
 GITHUB_TOKEN = os.environ.get("GH_PAT")
 REPOSITORIES = [

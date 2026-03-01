@@ -30,6 +30,8 @@ jobs:
         env:
           # GitHub Secrets에 등록한 토큰을 환경변수로 전달
           GH_PAT: ${{ secrets.GH_PAT }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}   # 추가
+          TELEGRAM_CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python alpine_version_update.py
 
       - name: Commit and Push if version changed
