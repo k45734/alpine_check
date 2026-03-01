@@ -13,8 +13,7 @@ CHAT_ID = "544321507"
 GITHUB_TOKEN = os.environ.get("GH_PAT")
 REPOSITORIES = [
     "k45734/alpine",
-    "k45734/cupsd",
-    "k45734/flask"
+    "k45734/cupsd"
 ]
 
 # 3. 경로 및 URL 설정
