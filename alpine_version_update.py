@@ -70,19 +70,27 @@ def trigger_github_actions():
             print(f"❌ {repo} API 요청 오류: {e}")
 
 def get_latest_info():
-    """웹 버전과 도커 해시 가져오기"""
+    """웹 버전과 도커 해시 가져오기 (정밀 정렬 적용)"""
     try:
-        # 웹 버전 추출
+        # 1. 웹 버전 추출
         res = requests.get(BASE_URL, headers=HEADERS, timeout=10)
-        branches = sorted(list(set(re.findall(r'v\d+\.\d+', res.text))), reverse=True)
+        # vX.X 형태의 브랜치를 모두 찾음
+        branches = list(set(re.findall(r'v\d+\.\d+', res.text)))
+        
+        # [수정] 버전 숫자를 기준으로 정렬 (예: 3.23 > 3.9)
+        branches.sort(key=lambda s: [int(u) for u in s.replace('v', '').split('.')], reverse=True)
         latest_branch = branches[0]
         
+        # 2. 상세 버전(v3.23.x) 추출
         rel_url = f"{BASE_URL}{latest_branch}/releases/x86_64/"
         res_rel = requests.get(rel_url, headers=HEADERS, timeout=10)
-        full_versions = sorted(list(set(re.findall(r'\b\d+\.\d+\.\d+\b', res_rel.text))), reverse=True)
+        full_versions = list(set(re.findall(r'\b\d+\.\d+\.\d+\b', res_rel.text)))
+        
+        # [수정] 상세 버전도 숫자 기준으로 정렬
+        full_versions.sort(key=lambda s: [int(u) for u in s.split('.')], reverse=True)
         web_v = full_versions[0] if full_versions else latest_branch.replace('v', '')
 
-        # 도커 정보 추출
+        # 3. 도커 정보 추출
         res_docker = requests.get(DOCKER_API_URL, headers=HEADERS, timeout=10).json()
         digest = res_docker.get('digest') or res_docker['images'][0]['digest']
         pushed_at = res_docker.get('last_updated')
